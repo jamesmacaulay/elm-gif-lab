@@ -1,8 +1,10 @@
-# elm-gif-lab [WIP]
+# [WIP] elm-gif-lab
 
 A little sandbox for making animated GIFs with Elm!
 
 ![animated rainbow lambda](rainbow-lambda.gif?raw=true)
+
+Uses the excellent [gif.js](https://jnordberg.github.io/gif.js/) for GIF encoding :)
 
 ## Usage
 
