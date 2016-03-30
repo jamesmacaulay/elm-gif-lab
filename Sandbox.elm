@@ -10,8 +10,8 @@ import Gif exposing (Gif)
 import Array exposing (Array)
 
 width = 512
-height = 32
-fps = 6
+height = 64
+fps = 12
 
 colors : List Color
 colors =
@@ -20,7 +20,7 @@ colors =
 colorRect : Int -> Color -> Collage.Form
 colorRect index color =
   let
-    scaleFactor = 1 - (0.2 * toFloat index)
+    scaleFactor = 1 - (0.04 * toFloat index)
     width' = width * scaleFactor
     height' = height * scaleFactor
   in
@@ -29,9 +29,10 @@ colorRect index color =
 view : Int -> a -> Gif.Frame
 view index _ =
   colors
-    |> List.append colors
+    |> List.repeat 6
+    |> List.concat
     |> List.drop index
-    |> List.take 6
+    |> List.take 24
     |> List.indexedMap colorRect
 
 frames : List (Gif.Frame)
