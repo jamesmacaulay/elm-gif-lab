@@ -15,22 +15,24 @@
       <div id="elm-main"></div>
     </div>
     <script src="elm.js"></script>
-    <script src="gif.js"></script>
+    <script src="vendor/gif.js"></script>
     <script type="text/javascript">
       var elmDiv = document.getElementById('elm-main');
       var app = Elm.embed(Elm.Main, elmDiv, {blobURLs: null});
 
       function render(settings) {
-        var gif = new GIF({workers: 4, quality: 10});
+        var gif = new GIF({
+          workers: 4,
+          quality: 10,
+          workerScript: "vendor/gif.worker.js"
+        });
         var frameDelays = settings.frameDelays;
-        console.log(frameDelays);
         var canvases = document.querySelectorAll(".frames canvas")
         for (var i = 0; i < frameDelays.length; i++) {
           gif.addFrame(canvases.item(i), {delay: frameDelays[i]});
         }
         gif.on("finished", function(blob) {
           var url = URL.createObjectURL(blob);
-          console.log(url);
           app.ports.blobURLs.send(url);
         });
         gif.render();

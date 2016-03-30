@@ -4,7 +4,7 @@
     "repository": "https://github.com/jamesmacaulay/elm-git-lab.git",
     "license": "MIT",
     "source-directories": [
-        "."
+        "src"
     ],
     "exposed-modules": [],
     "dependencies": {
