@@ -32,11 +32,12 @@ gif width height frames =
   in
     Gif width height timedFrames
 
---
--- withFps : Float -> Gif -> Gif
--- withFps fps gif =
---   let delay = Time.second / fps
---       timedFrames' =
---         gif.timedFrames
---           |> Array.map \(f, _) ->
---   { gif | timedFrames = (gif.frames)}
+
+withFps : Float -> Gif -> Gif
+withFps fps gif =
+  let delay = Time.second / fps
+      timedFrames' =
+        gif.timedFrames
+          |> Array.map (\(f, _) -> (f, delay))
+  in
+    { gif | timedFrames = timedFrames' }

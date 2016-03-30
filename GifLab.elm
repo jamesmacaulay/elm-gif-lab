@@ -135,9 +135,8 @@ viewIndividualFrames model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  div
-    [ ]
-    [ viewBlob model
-    , viewCurrentFrame model
-    , viewIndividualFrames model
-    ]
+  case model.blobURL of
+    Nothing ->
+      viewIndividualFrames model
+    Just url ->
+      img [ src url ] [ ]

@@ -10628,6 +10628,11 @@ Elm.Gif.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Time = Elm.Time.make(_elm);
    var _op = {};
+   var withFps = F2(function (fps,gif) {
+      var delay = $Time.second / fps;
+      var timedFrames$ = A2($Array.map,function (_p0) {    var _p1 = _p0;return {ctor: "_Tuple2",_0: _p1._0,_1: delay};},gif.timedFrames);
+      return _U.update(gif,{timedFrames: timedFrames$});
+   });
    var frameWithDelay = F2(function (t,f) {    return {ctor: "_Tuple2",_0: f,_1: t};});
    var emptyFrame = _U.list([]);
    var emptyTimedFrame = {ctor: "_Tuple2",_0: emptyFrame,_1: 0};
@@ -10636,7 +10641,13 @@ Elm.Gif.make = function (_elm) {
       var timedFrames = $Array.fromList(A2($List.map,frameWithDelay(500),frames));
       return A3(Gif,width,height,timedFrames);
    });
-   return _elm.Gif.values = {_op: _op,Gif: Gif,emptyFrame: emptyFrame,emptyTimedFrame: emptyTimedFrame,frameWithDelay: frameWithDelay,gif: gif};
+   return _elm.Gif.values = {_op: _op
+                            ,Gif: Gif
+                            ,emptyFrame: emptyFrame
+                            ,emptyTimedFrame: emptyTimedFrame
+                            ,frameWithDelay: frameWithDelay
+                            ,gif: gif
+                            ,withFps: withFps};
 };
 Elm.GifLab = Elm.GifLab || {};
 Elm.GifLab.make = function (_elm) {
@@ -10667,12 +10678,20 @@ Elm.GifLab.make = function (_elm) {
       _U.list([$Html$Attributes.$class("frames")]),
       $Array.toList(A2($Array.map,A2(viewFrameInDimensions,model.gif.width,model.gif.height),model.gif.timedFrames)));
    };
-   var viewBlob = function (model) {
+   var view = F2(function (address,model) {
       var _p2 = model.blobURL;
       if (_p2.ctor === "Nothing") {
-            return A2($Html.div,_U.list([]),_U.list([]));
+            return viewIndividualFrames(model);
          } else {
             return A2($Html.img,_U.list([$Html$Attributes.src(_p2._0)]),_U.list([]));
+         }
+   });
+   var viewBlob = function (model) {
+      var _p3 = model.blobURL;
+      if (_p3.ctor === "Nothing") {
+            return A2($Html.div,_U.list([]),_U.list([]));
+         } else {
+            return A2($Html.img,_U.list([$Html$Attributes.src(_p3._0)]),_U.list([]));
          }
    };
    var BlobURL = function (a) {    return {ctor: "BlobURL",_0: a};};
@@ -10682,38 +10701,35 @@ Elm.GifLab.make = function (_elm) {
    var nextOffset = function (model) {    return A2($Basics._op["%"],model.frameOffset + 1,$Array.length(model.gif.timedFrames));};
    var currentFrame = function (model) {    return A2($Maybe.withDefault,$Gif.emptyTimedFrame,A2($Array.get,model.frameOffset,model.gif.timedFrames));};
    var update = F2(function (action,model) {
-      var _p3 = action;
-      if (_p3.ctor === "Tick") {
-            var _p6 = _p3._0;
+      var _p4 = action;
+      if (_p4.ctor === "Tick") {
+            var _p7 = _p4._0;
             if ($Basics.not(model.playing)) return {ctor: "_Tuple2",_0: _U.update(model,{animationState: $Maybe.Nothing}),_1: $Effects.none}; else {
                   var newElapsedTime = function () {
-                     var _p4 = model.animationState;
-                     if (_p4.ctor === "Nothing") {
+                     var _p5 = model.animationState;
+                     if (_p5.ctor === "Nothing") {
                            return 0;
                         } else {
-                           return _p4._0.elapsedTime + (_p6 - _p4._0.prevClockTime);
+                           return _p5._0.elapsedTime + (_p7 - _p5._0.prevClockTime);
                         }
                   }();
-                  var _p5 = currentFrame(model);
-                  var duration = _p5._1;
+                  var _p6 = currentFrame(model);
+                  var duration = _p6._1;
                   return _U.cmp(newElapsedTime,duration) > 0 ? {ctor: "_Tuple2"
                                                                ,_0: _U.update(model,{frameOffset: nextOffset(model),animationState: $Maybe.Nothing})
                                                                ,_1: $Effects.tick(Tick)} : {ctor: "_Tuple2"
                                                                                            ,_0: _U.update(model,
                                                                                            {animationState: $Maybe.Just({elapsedTime: newElapsedTime
-                                                                                                                        ,prevClockTime: _p6})})
+                                                                                                                        ,prevClockTime: _p7})})
                                                                                            ,_1: $Effects.tick(Tick)};
                }
          } else {
-            return {ctor: "_Tuple2",_0: _U.update(model,{blobURL: _p3._0}),_1: $Effects.none};
+            return {ctor: "_Tuple2",_0: _U.update(model,{blobURL: _p4._0}),_1: $Effects.none};
          }
    });
    var viewCurrentFrame = function (model) {
       return A2($Html.div,_U.list([]),_U.list([A3(viewFrameInDimensions,model.gif.width,model.gif.height,currentFrame(model))]));
    };
-   var view = F2(function (address,model) {
-      return A2($Html.div,_U.list([]),_U.list([viewBlob(model),viewCurrentFrame(model),viewIndividualFrames(model)]));
-   });
    var init = function (gif) {
       return {ctor: "_Tuple2",_0: {gif: gif,playing: true,frameOffset: 0,animationState: $Maybe.Nothing,blobURL: $Maybe.Nothing},_1: $Effects.tick(Tick)};
    };
@@ -10750,15 +10766,63 @@ Elm.Sandbox.make = function (_elm) {
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $Text = Elm.Text.make(_elm);
    var _op = {};
-   var height = 128;
-   var width = 128;
-   var frames = _U.list([_U.list([A2($Graphics$Collage.filled,$Color.red,A2($Graphics$Collage.rect,width,height))])
-                        ,_U.list([A2($Graphics$Collage.filled,$Color.green,A2($Graphics$Collage.rect,width,height))])
-                        ,_U.list([A2($Graphics$Collage.filled,$Color.blue,A2($Graphics$Collage.rect,width,height))])]);
-   var gif = A3($Gif.gif,width,height,frames);
-   return _elm.Sandbox.values = {_op: _op,width: width,height: height,frames: frames,gif: gif};
+   var colors = $List.concat(A2($List.map,$List.repeat(12),_U.list([$Color.purple,$Color.blue,$Color.green,$Color.yellow,$Color.orange,$Color.red])));
+   var animatedColors = function () {
+      var step = F2(function (_p0,colorLists) {
+         var _p1 = colorLists;
+         if (_p1.ctor === "::" && _p1._0.ctor === "::") {
+               return A2($List._op["::"],A2($Basics._op["++"],_p1._0._1,_U.list([_p1._0._0])),colorLists);
+            } else {
+               return _U.list([]);
+            }
+      });
+      return A2($List.filterMap,
+      $Basics.identity,
+      A2($List.indexedMap,
+      F2(function (i,x) {    return _U.eq(A2($Basics._op["%"],i,4),0) ? $Maybe.Just(x) : $Maybe.Nothing;}),
+      $List.reverse(A2($List.map,
+      function (xs) {
+         return A2($Basics._op["++"],xs,_U.list([$Color.lightOrange]));
+      },
+      A3($List.foldr,step,_U.list([colors]),colors)))));
+   }();
+   var positions = F3(function (start,diffX,diffY) {
+      var step = F2(function (_p2,xs) {
+         var _p3 = xs;
+         if (_p3.ctor === "::") {
+               return A2($List._op["::"],{ctor: "_Tuple2",_0: _p3._0._0 + diffX,_1: _p3._0._1 - diffY},xs);
+            } else {
+               return _U.list([]);
+            }
+      });
+      return A3($List.foldr,step,_U.list([start]),colors);
+   });
+   var lambdaForm = F3(function (scaleFactor,color,pos) {
+      return A2($Graphics$Collage.move,pos,A2($Graphics$Collage.scale,scaleFactor,$Graphics$Collage.text(A2($Text.color,color,$Text.fromString("𝝀")))));
+   });
+   var height = 400;
+   var width = 400;
+   var viewFrame = function (colors) {
+      var background = A2($Graphics$Collage.filled,$Color.lightGrey,A2($Graphics$Collage.rect,width,height));
+      var lambdaView = lambdaForm(30);
+      var lambdas = A3($List.map2,lambdaView,colors,A3(positions,{ctor: "_Tuple2",_0: -62,_1: 90},1.5,0.75));
+      return A2($List._op["::"],background,lambdas);
+   };
+   var frames = A2($List.map,viewFrame,animatedColors);
+   var gif = A2($Gif.withFps,12,A3($Gif.gif,width,height,frames));
+   return _elm.Sandbox.values = {_op: _op
+                                ,width: width
+                                ,height: height
+                                ,lambdaForm: lambdaForm
+                                ,colors: colors
+                                ,animatedColors: animatedColors
+                                ,positions: positions
+                                ,viewFrame: viewFrame
+                                ,frames: frames
+                                ,gif: gif};
 };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
