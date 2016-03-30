@@ -2,7 +2,7 @@
 
 A little sandbox for making animated GIFs with Elm!
 
-![animated rainbow lambda](rainbow-lambda.gif?raw=true)
+![animated rainbow lambda](RainbowLambda.gif?raw=true)
 
 Uses the excellent [gif.js](https://jnordberg.github.io/gif.js/) for GIF encoding :)
 
@@ -28,3 +28,5 @@ The job of `Sandbox.elm` is to [generate a `Gif` value](https://github.com/james
 ## The big gotcha
 
 Unfortunately, some kinds of `Graphics.Collage.Form` values supplied to the `gif` constructor will not correctly render into the final GIF. The most common examples of this are `Graphics.Element` values that have later been converted into `Form` values with `Graphics.Collage.toForm`. This restriction is due to the fact that the `gif.js` renderer is given `canvas` nodes as input, and values generated from `Graphics.Element` do not render as `canvas` nodes. If you stay away from `toForm` then you will probably (?) be fine.
+
+![animated rainbow rectangles footer](Sandbox.gif?raw=true)
