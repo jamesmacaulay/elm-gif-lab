@@ -1,4 +1,4 @@
-module Sandbox where
+module RainbowLambda where
 
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
