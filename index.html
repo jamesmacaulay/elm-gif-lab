@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>elm gif lab</title>
+    <link href="https://d2v52k3cl9vedd.cloudfront.net/basscss/7.0.4/basscss.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container" role="main">
+      <div id="elm-main"></div>
+    </div>
+    <script src="elm.js"></script>
+    <script src="gif.js"></script>
+    <script type="text/javascript">
+      var elmDiv = document.getElementById('elm-main');
+      var app = Elm.embed(Elm.Main, elmDiv, {});
+      
+    </script>
+  </body>
+</html>
