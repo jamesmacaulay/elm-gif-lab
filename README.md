@@ -23,7 +23,7 @@ Uses the excellent [gif.js](https://jnordberg.github.io/gif.js/) for GIF encodin
 
 ## Tips
 
-The job of `Sandbox.elm` is to [generate a `Gif` value](https://github.com/jamesmacaulay/elm-gif-lab/blob/7e8e00b5383f7db13a72bdec66e6a8a44d91e310/Sandbox.elm#L74-L76) that is used by [`Main.elm`](Main.elm). The `Gif` is generated with the  [`Gif.gif`](blob/40779309a8f8f5e634b6a323b0dedf56b94a1366/Gif.elm#L26) constructor function, which takes a width, a height, and a list `Gif.Frame` values as arguments, and returns a `Gif`. A `Gif.Frame` is just an alias for `List Graphics.Collage.Form`, so the third argument is really a list-of-lists-of `Graphics.Collage.Form` values.
+The job of `Sandbox.elm` is to [generate a `Gif` value](https://github.com/jamesmacaulay/elm-gif-lab/blob/7e8e00b5383f7db13a72bdec66e6a8a44d91e310/Sandbox.elm#L74-L76) that is used by [`Main.elm`](Main.elm). The `Gif` is generated with the  [`Gif.gif`](https://github.com/jamesmacaulay/elm-gif-lab/blob/40779309a8f8f5e634b6a323b0dedf56b94a1366/Gif.elm#L26) constructor function, which takes a width, a height, and a list `Gif.Frame` values as arguments, and returns a `Gif`. A `Gif.Frame` is just an alias for `List Graphics.Collage.Form`, so the third argument is really a list-of-lists-of `Graphics.Collage.Form` values.
 
 ## The big gotcha
 
