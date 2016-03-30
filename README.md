@@ -23,7 +23,9 @@ Uses the excellent [gif.js](https://jnordberg.github.io/gif.js/) for GIF encodin
 
 ## Tips
 
-The job of `Sandbox.elm` is to [generate a `Gif` value](https://github.com/jamesmacaulay/elm-gif-lab/blob/7e8e00b5383f7db13a72bdec66e6a8a44d91e310/Sandbox.elm#L74-L76) that is [used by `Main.elm`](https://github.com/jamesmacaulay/elm-gif-lab/blob/342b6db78f80a8970dedce2dd7746dff6dc2025d/Main.elm#L15-L16). The `Gif` is generated with the  [`Gif.gif`](https://github.com/jamesmacaulay/elm-gif-lab/blob/40779309a8f8f5e634b6a323b0dedf56b94a1366/Gif.elm#L26) constructor function, which takes a width, a height, and a list `Gif.Frame` values as arguments, and returns a `Gif`. A `Gif.Frame` is just an alias for `List Graphics.Collage.Form`, so the third argument is really a list-of-lists-of [`Graphics.Collage.Form`](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Graphics-Collage#Form) values.
+The job of `Sandbox.elm` is to [generate a `Gif` value](https://github.com/jamesmacaulay/elm-gif-lab/blob/7e8e00b5383f7db13a72bdec66e6a8a44d91e310/Sandbox.elm#L74-L76) that is [used by `Main.elm`](https://github.com/jamesmacaulay/elm-gif-lab/blob/342b6db78f80a8970dedce2dd7746dff6dc2025d/Main.elm#L15-L16). The `Gif` is generated with the  [`Gif.gif`](https://github.com/jamesmacaulay/elm-gif-lab/blob/40779309a8f8f5e634b6a323b0dedf56b94a1366/Gif.elm#L26) constructor function, which takes a width, a height, and a list `Gif.Frame` values as arguments, and returns a `Gif`.
+
+A `Gif.Frame` is just an alias for `List Graphics.Collage.Form`, so the third argument is really a list-of-lists-of [`Graphics.Collage.Form`](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Graphics-Collage#Form) values. Each list of `Form` values that makes up a frame eventually gets handed off to [`Graphics.Collage.collage`](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Graphics-Collage#collage) as part of rendering, so each `Form` in a frame's list gets layered from bottom to top in the order of the list.
 
 ## The big gotcha
 
