@@ -9,6 +9,12 @@ import Gif exposing (Gif)
 
 width = 400
 height = 400
+lineSmoothness = 48
+speed = 1.0
+fps = 12
+
+minDimension = min width height
+lambdasPerColor = lineSmoothness
 
 lambdaForm : Float -> Color -> (Float, Float) -> Form
 lambdaForm scaleFactor color pos =
@@ -21,7 +27,7 @@ lambdaForm scaleFactor color pos =
 colors : List Color
 colors =
   [purple, blue, green, yellow, orange, red]
-    |> List.map (List.repeat 12)
+    |> List.map (List.repeat lineSmoothness)
     |> List.concat
 
 animatedColors : List (List Color)
@@ -34,7 +40,7 @@ animatedColors =
     List.foldr step [colors] colors
       |> List.map (\xs -> xs ++ [lightOrange])
       |> List.reverse
-      |> List.indexedMap (\i x -> if i % 4 == 0 then Just x else Nothing)
+      |> List.indexedMap (\i x -> if i % (floor (lambdasPerColor / (1 / (speed / (fps / 4))))) == 0 then Just x else Nothing)
       |> List.filterMap identity
 
 
@@ -49,10 +55,13 @@ positions start diffX diffY =
 
 viewFrame : List Color -> List Form
 viewFrame colors =
-  let lambdaView = lambdaForm 30
+  let lambdaView = lambdaForm (minDimension * 0.075)
       lambdas = List.map2 lambdaView
                   colors
-                  (positions (-62,90) 1.5 0.75)
+                  (positions
+                    (minDimension * -0.155, minDimension * 0.255)
+                    (minDimension * 0.045 * (1 / lambdasPerColor))
+                    (minDimension * 0.0225 * (1 / lambdasPerColor)))
       background = (rect width height |> filled lightGrey)
   in
     background :: lambdas
@@ -64,4 +73,4 @@ frames =
 
 gif : Gif
 gif =
-  Gif.gif width height frames |> Gif.withFps 12
+  Gif.gif width height frames |> Gif.withFps fps

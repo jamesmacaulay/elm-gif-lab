@@ -10769,7 +10769,16 @@ Elm.Sandbox.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Text = Elm.Text.make(_elm);
    var _op = {};
-   var colors = $List.concat(A2($List.map,$List.repeat(12),_U.list([$Color.purple,$Color.blue,$Color.green,$Color.yellow,$Color.orange,$Color.red])));
+   var lambdaForm = F3(function (scaleFactor,color,pos) {
+      return A2($Graphics$Collage.move,pos,A2($Graphics$Collage.scale,scaleFactor,$Graphics$Collage.text(A2($Text.color,color,$Text.fromString("𝝀")))));
+   });
+   var fps = 12;
+   var speed = 1.0;
+   var lineSmoothness = 48;
+   var lambdasPerColor = lineSmoothness;
+   var colors = $List.concat(A2($List.map,
+   $List.repeat(lineSmoothness),
+   _U.list([$Color.purple,$Color.blue,$Color.green,$Color.yellow,$Color.orange,$Color.red])));
    var animatedColors = function () {
       var step = F2(function (_p0,colorLists) {
          var _p1 = colorLists;
@@ -10782,7 +10791,9 @@ Elm.Sandbox.make = function (_elm) {
       return A2($List.filterMap,
       $Basics.identity,
       A2($List.indexedMap,
-      F2(function (i,x) {    return _U.eq(A2($Basics._op["%"],i,4),0) ? $Maybe.Just(x) : $Maybe.Nothing;}),
+      F2(function (i,x) {
+         return _U.eq(A2($Basics._op["%"],i,$Basics.floor(lambdasPerColor / (1 / (speed / (fps / 4))))),0) ? $Maybe.Just(x) : $Maybe.Nothing;
+      }),
       $List.reverse(A2($List.map,
       function (xs) {
          return A2($Basics._op["++"],xs,_U.list([$Color.lightOrange]));
@@ -10800,22 +10811,31 @@ Elm.Sandbox.make = function (_elm) {
       });
       return A3($List.foldr,step,_U.list([start]),colors);
    });
-   var lambdaForm = F3(function (scaleFactor,color,pos) {
-      return A2($Graphics$Collage.move,pos,A2($Graphics$Collage.scale,scaleFactor,$Graphics$Collage.text(A2($Text.color,color,$Text.fromString("𝝀")))));
-   });
    var height = 400;
    var width = 400;
+   var minDimension = A2($Basics.min,width,height);
    var viewFrame = function (colors) {
       var background = A2($Graphics$Collage.filled,$Color.lightGrey,A2($Graphics$Collage.rect,width,height));
-      var lambdaView = lambdaForm(30);
-      var lambdas = A3($List.map2,lambdaView,colors,A3(positions,{ctor: "_Tuple2",_0: -62,_1: 90},1.5,0.75));
+      var lambdaView = lambdaForm(minDimension * 7.5e-2);
+      var lambdas = A3($List.map2,
+      lambdaView,
+      colors,
+      A3(positions,
+      {ctor: "_Tuple2",_0: minDimension * -0.155,_1: minDimension * 0.255},
+      minDimension * 4.5e-2 * (1 / lambdasPerColor),
+      minDimension * 2.25e-2 * (1 / lambdasPerColor)));
       return A2($List._op["::"],background,lambdas);
    };
    var frames = A2($List.map,viewFrame,animatedColors);
-   var gif = A2($Gif.withFps,12,A3($Gif.gif,width,height,frames));
+   var gif = A2($Gif.withFps,fps,A3($Gif.gif,width,height,frames));
    return _elm.Sandbox.values = {_op: _op
                                 ,width: width
                                 ,height: height
+                                ,lineSmoothness: lineSmoothness
+                                ,speed: speed
+                                ,fps: fps
+                                ,minDimension: minDimension
+                                ,lambdasPerColor: lambdasPerColor
                                 ,lambdaForm: lambdaForm
                                 ,colors: colors
                                 ,animatedColors: animatedColors
