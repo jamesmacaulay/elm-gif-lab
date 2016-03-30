@@ -1,4 +1,5 @@
 module Sandbox where
+-- also see RainbowLambda.elm for a more complex example!
 
 import Graphics.Collage as Collage exposing (..)
 import Graphics.Element exposing (..)
