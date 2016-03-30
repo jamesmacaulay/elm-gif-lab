@@ -13,6 +13,12 @@ type alias Gif =
   , timedFrames : Array TimedFrame
   }
 
+emptyFrame : Frame
+emptyFrame = []
+
+emptyTimedFrame : TimedFrame
+emptyTimedFrame = (emptyFrame, 0)
+
 frameWithDelay : Time -> Frame -> TimedFrame
 frameWithDelay t f =
   (f, t)
@@ -25,7 +31,8 @@ gif width height frames =
           |> Array.fromList
   in
     Gif width height timedFrames
--- 
+
+--
 -- withFps : Float -> Gif -> Gif
 -- withFps fps gif =
 --   let delay = Time.second / fps

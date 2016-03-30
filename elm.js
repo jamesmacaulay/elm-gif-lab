@@ -10629,12 +10629,14 @@ Elm.Gif.make = function (_elm) {
    $Time = Elm.Time.make(_elm);
    var _op = {};
    var frameWithDelay = F2(function (t,f) {    return {ctor: "_Tuple2",_0: f,_1: t};});
+   var emptyFrame = _U.list([]);
+   var emptyTimedFrame = {ctor: "_Tuple2",_0: emptyFrame,_1: 0};
    var Gif = F3(function (a,b,c) {    return {width: a,height: b,timedFrames: c};});
    var gif = F3(function (width,height,frames) {
       var timedFrames = $Array.fromList(A2($List.map,frameWithDelay(500),frames));
       return A3(Gif,width,height,timedFrames);
    });
-   return _elm.Gif.values = {_op: _op,Gif: Gif,frameWithDelay: frameWithDelay,gif: gif};
+   return _elm.Gif.values = {_op: _op,Gif: Gif,emptyFrame: emptyFrame,emptyTimedFrame: emptyTimedFrame,frameWithDelay: frameWithDelay,gif: gif};
 };
 Elm.GifLab = Elm.GifLab || {};
 Elm.GifLab.make = function (_elm) {
@@ -10653,7 +10655,8 @@ Elm.GifLab.make = function (_elm) {
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $Time = Elm.Time.make(_elm);
    var _op = {};
    var viewFrameInDimensions = F3(function (width,height,_p0) {
       var _p1 = _p0;
@@ -10664,16 +10667,71 @@ Elm.GifLab.make = function (_elm) {
       _U.list([$Html$Attributes.$class("frames")]),
       $Array.toList(A2($Array.map,A2(viewFrameInDimensions,model.gif.width,model.gif.height),model.gif.timedFrames)));
    };
-   var view = F2(function (address,model) {    return A2($Html.div,_U.list([]),_U.list([viewIndividualFrames(model)]));});
-   var update = F2(function (action,model) {    var _p2 = action;return {ctor: "_Tuple2",_0: model,_1: $Effects.none};});
-   var NoOp = {ctor: "NoOp"};
-   var Model = function (a) {    return {gif: a};};
-   var init = function (gif) {    return {ctor: "_Tuple2",_0: Model(gif),_1: $Effects.none};};
+   var viewBlob = function (model) {
+      var _p2 = model.blobURL;
+      if (_p2.ctor === "Nothing") {
+            return A2($Html.div,_U.list([]),_U.list([]));
+         } else {
+            return A2($Html.img,_U.list([$Html$Attributes.src(_p2._0)]),_U.list([]));
+         }
+   };
+   var BlobURL = function (a) {    return {ctor: "BlobURL",_0: a};};
+   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
+   var renderSettings = function (gif) {    return {frameDelays: $Array.toList(A2($Array.map,$Basics.snd,gif.timedFrames))};};
+   var RenderSettings = function (a) {    return {frameDelays: a};};
+   var nextOffset = function (model) {    return A2($Basics._op["%"],model.frameOffset + 1,$Array.length(model.gif.timedFrames));};
+   var currentFrame = function (model) {    return A2($Maybe.withDefault,$Gif.emptyTimedFrame,A2($Array.get,model.frameOffset,model.gif.timedFrames));};
+   var update = F2(function (action,model) {
+      var _p3 = action;
+      if (_p3.ctor === "Tick") {
+            var _p6 = _p3._0;
+            if ($Basics.not(model.playing)) return {ctor: "_Tuple2",_0: _U.update(model,{animationState: $Maybe.Nothing}),_1: $Effects.none}; else {
+                  var newElapsedTime = function () {
+                     var _p4 = model.animationState;
+                     if (_p4.ctor === "Nothing") {
+                           return 0;
+                        } else {
+                           return _p4._0.elapsedTime + (_p6 - _p4._0.prevClockTime);
+                        }
+                  }();
+                  var _p5 = currentFrame(model);
+                  var duration = _p5._1;
+                  return _U.cmp(newElapsedTime,duration) > 0 ? {ctor: "_Tuple2"
+                                                               ,_0: _U.update(model,{frameOffset: nextOffset(model),animationState: $Maybe.Nothing})
+                                                               ,_1: $Effects.tick(Tick)} : {ctor: "_Tuple2"
+                                                                                           ,_0: _U.update(model,
+                                                                                           {animationState: $Maybe.Just({elapsedTime: newElapsedTime
+                                                                                                                        ,prevClockTime: _p6})})
+                                                                                           ,_1: $Effects.tick(Tick)};
+               }
+         } else {
+            return {ctor: "_Tuple2",_0: _U.update(model,{blobURL: _p3._0}),_1: $Effects.none};
+         }
+   });
+   var viewCurrentFrame = function (model) {
+      return A2($Html.div,_U.list([]),_U.list([A3(viewFrameInDimensions,model.gif.width,model.gif.height,currentFrame(model))]));
+   };
+   var view = F2(function (address,model) {
+      return A2($Html.div,_U.list([]),_U.list([viewBlob(model),viewCurrentFrame(model),viewIndividualFrames(model)]));
+   });
+   var init = function (gif) {
+      return {ctor: "_Tuple2",_0: {gif: gif,playing: true,frameOffset: 0,animationState: $Maybe.Nothing,blobURL: $Maybe.Nothing},_1: $Effects.tick(Tick)};
+   };
+   var Model = F5(function (a,b,c,d,e) {    return {gif: a,playing: b,frameOffset: c,animationState: d,blobURL: e};});
+   var inputs = function (blobURLs) {    return _U.list([A2($Signal.map,BlobURL,blobURLs)]);};
    return _elm.GifLab.values = {_op: _op
+                               ,inputs: inputs
                                ,Model: Model
                                ,init: init
-                               ,NoOp: NoOp
+                               ,currentFrame: currentFrame
+                               ,nextOffset: nextOffset
+                               ,RenderSettings: RenderSettings
+                               ,renderSettings: renderSettings
+                               ,Tick: Tick
+                               ,BlobURL: BlobURL
                                ,update: update
+                               ,viewBlob: viewBlob
+                               ,viewCurrentFrame: viewCurrentFrame
                                ,viewFrameInDimensions: viewFrameInDimensions
                                ,viewIndividualFrames: viewIndividualFrames
                                ,view: view};
@@ -10710,6 +10768,7 @@ Elm.Main.make = function (_elm) {
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Effects = Elm.Effects.make(_elm),
    $GifLab = Elm.GifLab.make(_elm),
    $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
@@ -10717,9 +10776,22 @@ Elm.Main.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Sandbox = Elm.Sandbox.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $StartApp = Elm.StartApp.make(_elm);
+   $StartApp = Elm.StartApp.make(_elm),
+   $Task = Elm.Task.make(_elm);
    var _op = {};
-   var app = $StartApp.start({init: $GifLab.init($Sandbox.gif),update: $GifLab.update,view: $GifLab.view,inputs: _U.list([])});
+   var renderSettings = Elm.Native.Port.make(_elm).outbound("renderSettings",
+   function (v) {
+      return {frameDelays: Elm.Native.List.make(_elm).toArray(v.frameDelays).map(function (v) {    return v;})};
+   },
+   $GifLab.renderSettings($Sandbox.gif));
+   var blobURLs = Elm.Native.Port.make(_elm).inboundSignal("blobURLs",
+   "Maybe.Maybe String",
+   function (v) {
+      return v === null ? Elm.Maybe.make(_elm).Nothing : Elm.Maybe.make(_elm).Just(typeof v === "string" || typeof v === "object" && v instanceof String ? v : _U.badPort("a string",
+      v));
+   });
+   var app = $StartApp.start({init: $GifLab.init($Sandbox.gif),update: $GifLab.update,view: $GifLab.view,inputs: $GifLab.inputs(blobURLs)});
    var main = app.html;
+   var tasks = Elm.Native.Task.make(_elm).performSignal("tasks",app.tasks);
    return _elm.Main.values = {_op: _op,app: app,main: main};
 };
