@@ -7,9 +7,9 @@ import Color exposing (..)
 import Time exposing (Time)
 import Gif exposing (Gif)
 
-width = 400
-height = 400
-lineSmoothness = 48
+width = 128
+height = 128
+lineSmoothness = 24
 speed = 1.0
 fps = 12
 

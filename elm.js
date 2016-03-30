@@ -10774,7 +10774,7 @@ Elm.Sandbox.make = function (_elm) {
    });
    var fps = 12;
    var speed = 1.0;
-   var lineSmoothness = 48;
+   var lineSmoothness = 24;
    var lambdasPerColor = lineSmoothness;
    var colors = $List.concat(A2($List.map,
    $List.repeat(lineSmoothness),
@@ -10811,8 +10811,8 @@ Elm.Sandbox.make = function (_elm) {
       });
       return A3($List.foldr,step,_U.list([start]),colors);
    });
-   var height = 400;
-   var width = 400;
+   var height = 128;
+   var width = 128;
    var minDimension = A2($Basics.min,width,height);
    var viewFrame = function (colors) {
       var background = A2($Graphics$Collage.filled,$Color.lightGrey,A2($Graphics$Collage.rect,width,height));
