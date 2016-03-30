@@ -2,7 +2,7 @@
 
 A little sandbox for making animated GIFs with Elm!
 
-![animated rainbow lambda](rainbow-lambda.gif?raw=true)!
+![animated rainbow lambda](rainbow-lambda.gif?raw=true)
 
 ## Usage
 
