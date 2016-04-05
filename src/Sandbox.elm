@@ -2,12 +2,8 @@ module Sandbox where
 -- also see RainbowLambda.elm for a more complex example!
 
 import Graphics.Collage as Collage exposing (..)
-import Graphics.Element exposing (..)
-import Text
 import Color exposing (..)
-import Time exposing (Time)
 import Gif exposing (Gif)
-import Array exposing (Array)
 
 width = 512
 height = 64
