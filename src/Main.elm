@@ -9,6 +9,7 @@ import GifLab
 import Gif
 import Sandbox
 import RainbowLambda
+import Tiles
 
 port blobURLs : Signal (Maybe String)
 
